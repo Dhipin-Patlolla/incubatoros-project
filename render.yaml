@@ -1,6 +1,6 @@
-# render.yaml (Simplified Version)
+# render.yaml (Bare-Bones Version)
 services:
-  # 1. The Web Server (Your Django App)
+  # The Web Server (Your Django App)
   - type: web
     name: incubatoros-django
     env: python
@@ -11,10 +11,6 @@ services:
         fromDatabase:
           name: incubatoros-db
           property: connectionString
-      - key: REDIS_URL 
-        fromDatabase:
-          name: incubatoros-redis
-          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
@@ -22,13 +18,8 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.4
 
-# All databases and services like Redis go here
+# The PostgreSQL Database is the only other service needed
 databases:
-  # The PostgreSQL Database
   - name: incubatoros-db
     databaseName: incubatoros
     user: incubator_user
-
-  # The Redis Instance
-  - name: incubatoros-redis
-    plan: free
