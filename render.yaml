@@ -1,4 +1,4 @@
-# render.yaml
+# render.yaml (Corrected Version)
 services:
   # 1. The Web Server (Your Django App)
   - type: web
@@ -10,6 +10,10 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: incubatoros-db
+          property: connectionString
+      - key: REDIS_URL # Add this line to connect to Redis
+        fromDatabase:
+          name: incubatoros-redis
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -29,19 +33,23 @@ services:
         fromDatabase:
           name: incubatoros-db
           property: connectionString
+      - key: REDIS_URL # Add this line to connect to Redis
+        fromDatabase:
+          name: incubatoros-redis
+          property: connectionString
       - key: SECRET_KEY
         fromService:
           type: web
           name: incubatoros-django
           envVarKey: SECRET_KEY
 
-  # 3. The Message Broker (Redis for Celery)
-  - type: pserv
-    name: incubatoros-redis
-    env: redis
-
-# 4. The Database (PostgreSQL)
+# All databases and services like Redis go here
 databases:
+  # The PostgreSQL Database
   - name: incubatoros-db
     databaseName: incubatoros
     user: incubator_user
+
+  # The Redis Instance
+  - name: incubatoros-redis
+    plan: free # This tells Render to create a free-tier Redis instance
