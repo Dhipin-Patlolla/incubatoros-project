@@ -1,6 +1,5 @@
-# render.yaml (Bare-Bones Version)
+# render.yaml (Complete Version)
 services:
-  # The Web Server (Your Django App)
   - type: web
     name: incubatoros-django
     env: python
@@ -11,6 +10,10 @@ services:
         fromDatabase:
           name: incubatoros-db
           property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: incubatoros-redis
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
@@ -18,8 +21,30 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.4
 
-# The PostgreSQL Database is the only other service needed
+  - type: worker
+    name: incubatoros-celery
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "celery -A incubatoros worker --loglevel=info"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: incubatoros-db
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: incubatoros-redis
+          property: connectionString
+      - key: SECRET_KEY
+        fromService:
+          type: web
+          name: incubatoros-django
+          envVarKey: SECRET_KEY
+
 databases:
   - name: incubatoros-db
     databaseName: incubatoros
     user: incubator_user
+
+  - name: incubatoros-redis
+    plan: free
